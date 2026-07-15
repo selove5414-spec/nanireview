@@ -656,9 +656,9 @@ body {
 
 /* BATTLE SCREEN & WRAP */
 .battle-wrap {
-  max-width: 900px;
+  max-width: 480px; /* 手機直式螢幕寬度 */
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 20px 14px;
 }
 .battle-screen {
   animation: fadeIn 0.4s ease;
@@ -667,11 +667,11 @@ body {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 40px;
+  padding: 28px 20px;
   text-align: center;
 }
 .battle-card h2 {
-  font-size: 1.6em;
+  font-size: 1.5em;
   font-weight: 900;
   margin-bottom: 8px;
   background: linear-gradient(135deg, #f43f5e, #ec4899);
@@ -681,51 +681,51 @@ body {
 }
 .battle-desc {
   color: var(--text-muted);
-  font-size: 0.9em;
-  margin-bottom: 40px;
+  font-size: 0.85em;
+  margin-bottom: 30px;
 }
 .battle-setup-grid {
   display: flex;
-  align-items: stretch;
-  gap: 30px;
+  flex-direction: column; /* 直式排列 */
+  gap: 20px;
 }
 .setup-panel {
-  flex: 1;
+  width: 100%;
   background: rgba(255,255,255,0.02);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 30px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 250px;
 }
 .setup-panel h3 {
-  font-size: 1.1em;
-  margin-bottom: 8px;
+  font-size: 1.05em;
+  margin-bottom: 6px;
 }
 .panel-desc {
-  font-size: 0.8em;
+  font-size: 0.78em;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 .setup-divider {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* 水平分割線 */
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
   font-weight: 900;
-  font-size: 1.2em;
+  font-size: 1.1em;
+  margin: 10px 0;
 }
 .divider-line {
-  width: 1px;
+  height: 1px;
   flex: 1;
   background: var(--border);
-  margin: 10px 0;
+  margin: 0 15px;
 }
 .battle-btn {
   padding: 12px 28px;
@@ -735,6 +735,7 @@ body {
   border: none;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%; /* 滿寬度適合手機按壓 */
 }
 .battle-btn.primary {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -756,7 +757,9 @@ body {
   border-radius: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  width: 100%;
 }
 .room-id-label {
   font-size: 0.8em;
@@ -807,15 +810,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 16px;
+  margin-bottom: 20px;
+  gap: 10px;
 }
 .score-card {
   flex: 1;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px 24px;
+  border-radius: 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
 }
@@ -827,12 +830,12 @@ body {
   align-items: flex-end;
 }
 .score-lbl {
-  font-size: 0.78em;
+  font-size: 0.75em;
   color: var(--text-muted);
   font-weight: 600;
 }
 .score-num {
-  font-size: 2em;
+  font-size: 1.6em;
   font-weight: 900;
 }
 .score-card.you .score-num { color: var(--accent); }
@@ -840,19 +843,19 @@ body {
 .battle-round-badge {
   background: var(--surface3);
   border: 1px solid var(--border);
-  padding: 10px 20px;
-  border-radius: 30px;
+  padding: 6px 12px;
+  border-radius: 20px;
   text-align: center;
-  min-width: 140px;
+  min-width: 100px;
 }
 .round-title {
   display: block;
-  font-size: 0.7em;
+  font-size: 0.65em;
   color: var(--text-muted);
 }
 .round-num {
   font-weight: 800;
-  font-size: 1.1em;
+  font-size: 1em;
 }
 .battle-feedback {
   text-align: center;
@@ -869,29 +872,29 @@ body {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 50px 40px;
+  padding: 35px 20px;
   text-align: center;
 }
 .result-icon {
-  font-size: 4em;
-  margin-bottom: 16px;
+  font-size: 3.5em;
+  margin-bottom: 12px;
 }
 .result-title {
-  font-size: 2em;
+  font-size: 1.8em;
   font-weight: 900;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .result-score-comparison {
   display: flex;
   justify-content: center;
-  gap: 40px;
-  margin-bottom: 30px;
+  gap: 30px;
+  margin-bottom: 24px;
   background: rgba(255,255,255,0.02);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 24px;
-  max-width: 400px;
-  margin: 0 auto 30px;
+  padding: 16px;
+  max-width: 320px;
+  margin: 0 auto 24px;
 }
 .res-score {
   display: flex;
