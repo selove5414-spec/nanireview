@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南一書局《學測英文週攻略》互動教學平台</title>
+<meta name="description" content="南一書局學測英文週攻略互動教學平台，包含詞彙、片語、文法、詞類等單元，提供投影片教學與互動複習遊戲。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="home-page" class="page active">
+  <div class="home-hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">📚 教師投影教學版 × 學生互動複習版</div>
+      <h1>南一書局《學測英文週攻略》</h1>
+      <p class="subtitle">互動教學平台 — 詞彙 × 片語 × 文法 × 詞類</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">10</span><span class="stat-lbl">回</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">7</span><span class="stat-lbl">大題型</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">90+</span><span class="stat-lbl">題/回</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="units-section">
+    <h2 class="section-heading"><span class="heading-icon">📖</span>單元總覽</h2>
+    <div class="unit-grid" id="unit-grid"></div>
+  </div>
+  <div class="bottom-tip">
+    <div class="tip-box">
+      <span>💡 教學提示：</span>點擊單元卡片進入投影片教學模式，每題先出現題目，按「顯示詳解」後出現答案與解析，大題結束後自動進入複習遊戲。
+    </div>
+  </div>
+</div>
+
+<div id="unit-page" class="page">
+  <div class="top-bar">
+    <button class="back-btn" id="back-btn">← 返回</button>
+    <div class="top-bar-center">
+      <div class="top-bar-title" id="top-bar-title"></div>
+    </div>
+    <button class="game-quick-btn" onclick="startReview()">🎮 複習遊戲</button>
+  </div>
+  <div class="section-nav" id="section-nav"></div>
+  <div id="slide-container"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
