@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --accent: #3b82f6;
   --accent2: #06b6d4;
   --gold: #f59e0b;
@@ -623,6 +623,293 @@ body {
 }
 .toast.show { display: block; }
 @keyframes toastIn { from { opacity:0; bottom:6px; } to { opacity:1; bottom:28px; } }
+
+/* FOOTER */
+.home-footer {
+  text-align: center;
+  padding: 30px 20px 40px;
+  font-size: 0.8em;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  max-width: 1200px;
+  margin: 40px auto 0;
+  letter-spacing: 0.5px;
+}
+
+/* BATTLE QUICK BTN */
+.battle-quick-btn {
+  background: linear-gradient(135deg, var(--danger), #b91c1c);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+.battle-quick-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+}
+
+/* BATTLE SCREEN & WRAP */
+.battle-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+.battle-screen {
+  animation: fadeIn 0.4s ease;
+}
+.battle-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+}
+.battle-card h2 {
+  font-size: 1.6em;
+  font-weight: 900;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f43f5e, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.battle-desc {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  margin-bottom: 40px;
+}
+.battle-setup-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 30px;
+}
+.setup-panel {
+  flex: 1;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+}
+.setup-panel h3 {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+.panel-desc {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  text-align: center;
+  line-height: 1.5;
+}
+.setup-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 900;
+  font-size: 1.2em;
+}
+.divider-line {
+  width: 1px;
+  flex: 1;
+  background: var(--border);
+  margin: 10px 0;
+}
+.battle-btn {
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.battle-btn.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+.battle-btn.success {
+  background: linear-gradient(135deg, var(--success), #047857);
+  color: white;
+}
+.battle-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+.room-id-box {
+  margin-top: 18px;
+  background: var(--surface3);
+  border: 1px dashed var(--accent2);
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.room-id-label {
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+.room-id-value {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--accent2);
+}
+.copy-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  cursor: pointer;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+.status-msg {
+  font-size: 0.8em;
+  margin-top: 14px;
+  color: var(--text-muted);
+}
+.status-msg.error {
+  color: var(--danger);
+}
+.room-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: white;
+  text-align: center;
+  font-family: monospace;
+  font-size: 1em;
+  width: 100%;
+  margin-bottom: 16px;
+}
+.room-input:focus {
+  border-color: var(--success);
+  outline: none;
+}
+
+/* BATTLE GAME SCREEN */
+.battle-score-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+.score-card {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.score-card.you {
+  border-left: 4px solid var(--accent);
+}
+.score-card.opponent {
+  border-left: 4px solid var(--danger);
+  align-items: flex-end;
+}
+.score-lbl {
+  font-size: 0.78em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.score-num {
+  font-size: 2em;
+  font-weight: 900;
+}
+.score-card.you .score-num { color: var(--accent); }
+.score-card.opponent .score-num { color: var(--danger); }
+.battle-round-badge {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  border-radius: 30px;
+  text-align: center;
+  min-width: 140px;
+}
+.round-title {
+  display: block;
+  font-size: 0.7em;
+  color: var(--text-muted);
+}
+.round-num {
+  font-weight: 800;
+  font-size: 1.1em;
+}
+.battle-feedback {
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: 700;
+  margin-top: 16px;
+  min-height: 35px;
+}
+.battle-feedback.correct { color: var(--success); }
+.battle-feedback.wrong { color: var(--danger); }
+
+/* BATTLE RESULT SCREEN */
+.result-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 50px 40px;
+  text-align: center;
+}
+.result-icon {
+  font-size: 4em;
+  margin-bottom: 16px;
+}
+.result-title {
+  font-size: 2em;
+  font-weight: 900;
+  margin-bottom: 24px;
+}
+.result-score-comparison {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto 30px;
+}
+.res-score {
+  display: flex;
+  flex-direction: column;
+}
+.res-score .label {
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+.res-score strong {
+  font-size: 2.2em;
+}
+.res-score.you strong { color: var(--accent); }
+.res-score.opp strong { color: var(--danger); }
+.result-msg {
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
 
 /* RESPONSIVE */
 @media (max-width: 650px) {

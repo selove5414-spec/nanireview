@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -34,6 +34,9 @@
       <span>💡 教學提示：</span>點擊單元卡片進入投影片教學模式，每題先出現題目，按「顯示詳解」後出現答案與解析，大題結束後自動進入複習遊戲。
     </div>
   </div>
+  <footer class="home-footer">
+    <p>⚠️ 本網站僅做教學及學習使用，所有內容由南一出版社提供，請留意智慧財產權。</p>
+  </footer>
 </div>
 
 <div id="unit-page" class="page">
@@ -42,10 +45,107 @@
     <div class="top-bar-center">
       <div class="top-bar-title" id="top-bar-title"></div>
     </div>
-    <button class="game-quick-btn" onclick="startReview()">🎮 複習遊戲</button>
+    <div class="top-bar-right">
+      <button class="game-quick-btn" onclick="startReview()">🎮 複習遊戲</button>
+      <button class="battle-quick-btn" onclick="startBattle()">⚔️ 雙人對戰</button>
+    </div>
   </div>
   <div class="section-nav" id="section-nav"></div>
   <div id="slide-container"></div>
+</div>
+
+<div id="battle-page" class="page">
+  <div class="top-bar">
+    <button class="back-btn" onclick="exitBattle()">← 返回</button>
+    <div class="top-bar-center">
+      <div class="top-bar-title">⚔️ 雙人即時對戰</div>
+    </div>
+    <div class="top-bar-right"></div>
+  </div>
+  <div class="battle-wrap">
+    <!-- Setup Screen -->
+    <div id="battle-setup" class="battle-screen">
+      <div class="battle-card">
+        <h2>建立或加入對戰房</h2>
+        <p class="battle-desc">使用 WebRTC 技術進行點對點即時連線，完全不需伺服器！</p>
+        
+        <div class="battle-setup-grid">
+          <div class="setup-panel creator">
+            <h3>🔑 建立戰局 (當房主)</h3>
+            <p class="panel-desc">產生一個房間 ID，並分享給你的對手加入。</p>
+            <button class="battle-btn primary" id="btn-create-room" onclick="createBattleRoom()">產生房間 ID</button>
+            <div id="room-id-box" class="room-id-box" style="display:none;">
+              <span class="room-id-label">您的房間 ID：</span>
+              <span id="my-room-id" class="room-id-value"></span>
+              <button class="copy-btn" onclick="copyRoomId()">📋 複製</button>
+            </div>
+            <p id="waiting-msg" class="status-msg" style="display:none;">⏳ 等待對手連線中...</p>
+          </div>
+          
+          <div class="setup-divider">
+            <div class="divider-line"></div>
+            <span>VS</span>
+            <div class="divider-line"></div>
+          </div>
+          
+          <div class="setup-panel joiner">
+            <h3>⚔️ 加入戰局 (當對手)</h3>
+            <p class="panel-desc">輸入房主提供給您的房間 ID，點擊連線對戰。</p>
+            <input type="text" id="opponent-room-id" class="room-input" placeholder="請輸入房間 ID (例如: nani-1234)">
+            <button class="battle-btn success" id="btn-join-room" onclick="joinBattleRoom()">連線並開始對戰</button>
+            <p id="join-status" class="status-msg error" style="display:none;"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="battle-game" class="battle-screen" style="display:none;">
+      <div class="battle-score-header">
+        <div class="score-card you">
+          <span class="score-lbl">🧑 你 (You)</span>
+          <span class="score-num" id="my-battle-score">0</span>
+        </div>
+        <div class="battle-round-badge">
+          <span class="round-title">對戰回合</span>
+          <span class="round-num"><span id="battle-q-idx">1</span> / 10</span>
+        </div>
+        <div class="score-card opponent">
+          <span class="score-lbl">🤖 對手 (Opponent)</span>
+          <span class="score-num" id="opp-battle-score">0</span>
+        </div>
+      </div>
+      
+      <div class="question-card">
+        <div class="q-text" id="battle-q-text">載入題目中...</div>
+        <div class="options-grid" id="battle-options-grid"></div>
+      </div>
+      <div id="battle-feedback" class="battle-feedback"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="battle-result" class="battle-screen" style="display:none;">
+      <div class="result-card">
+        <div class="result-icon" id="battle-result-icon">🏆</div>
+        <h2 class="result-title" id="battle-result-title">你贏了！</h2>
+        <div class="result-score-comparison">
+          <div class="res-score you">
+            <span class="label">你的分數</span>
+            <strong id="final-my-score">0</strong>
+          </div>
+          <div class="res-score opp">
+            <span class="label">對手分數</span>
+            <strong id="final-opp-score">0</strong>
+          </div>
+        </div>
+        <p class="result-msg" id="battle-result-msg">太厲害了，掌握得非常完美！</p>
+        <div class="btn-row">
+          <button class="battle-btn primary" onclick="rematchBattle()">🔄 再戰一局</button>
+          <button class="battle-btn" onclick="exitBattle()">📖 返回單元</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>

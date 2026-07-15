@@ -377,6 +377,379 @@ function showToast(msg, dur=2200) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
+// ---- BATTLE MULTIPLAYER ----
+let peer = null;
+let conn = null;
+let isHost = false;
+let battleQuestions = [];
+let battleQIdx = 0;
+let myBattleScore = 0;
+let oppBattleScore = 0;
+let hasAnsweredCurrent = false;
+let myAnswerStatus = null;
+let oppAnswerStatus = null;
+let rematchVotes = { me: false, opp: false };
+
+function loadPeerJS(callback) {
+  if (window.Peer) {
+    callback();
+    return;
+  }
+  showToast("⏳ 正在加載連線模組...", 1500);
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
+  script.onload = () => {
+    showToast("✅ 連線模組加載完成", 1500);
+    callback();
+  };
+  script.onerror = () => {
+    showToast("❌ 無法載入連線模組，請檢查網路連線", 3000);
+  };
+  document.body.appendChild(script);
+}
+
+function startBattle() {
+  loadPeerJS(() => {
+    showPage('battle-page');
+    document.getElementById('battle-setup').style.display = 'block';
+    document.getElementById('battle-game').style.display = 'none';
+    document.getElementById('battle-result').style.display = 'none';
+    
+    document.getElementById('room-id-box').style.display = 'none';
+    document.getElementById('waiting-msg').style.display = 'none';
+    document.getElementById('opponent-room-id').value = '';
+    document.getElementById('join-status').style.display = 'none';
+    
+    document.getElementById('btn-create-room').disabled = false;
+    document.getElementById('btn-join-room').disabled = false;
+    
+    cleanupPeer();
+  });
+}
+
+function createBattleRoom() {
+  document.getElementById('btn-create-room').disabled = true;
+  document.getElementById('waiting-msg').style.display = 'block';
+  document.getElementById('waiting-msg').textContent = '🔑 正在向伺服器註冊房號...';
+  
+  isHost = true;
+  cleanupPeer();
+  
+  const rId = 'nani-' + Math.floor(1000 + Math.random() * 9000);
+  peer = new Peer(rId);
+  
+  peer.on('open', (id) => {
+    document.getElementById('room-id-box').style.display = 'flex';
+    document.getElementById('my-room-id').textContent = id;
+    document.getElementById('waiting-msg').textContent = '⏳ 房號註冊成功！等待對手加入中...';
+  });
+  
+  peer.on('connection', (connection) => {
+    conn = connection;
+    setupConnection();
+  });
+  
+  peer.on('error', (err) => {
+    console.error(err);
+    document.getElementById('waiting-msg').textContent = '❌ 建立房間失敗，可能房號已被佔用，請重新嘗試。';
+    document.getElementById('btn-create-room').disabled = false;
+  });
+}
+
+function joinBattleRoom() {
+  const roomInput = document.getElementById('opponent-room-id').value.trim();
+  if (!roomInput) {
+    showToast("⚠️ 請輸入對手的房間 ID");
+    return;
+  }
+  
+  document.getElementById('btn-join-room').disabled = true;
+  const statusEl = document.getElementById('join-status');
+  statusEl.style.display = 'block';
+  statusEl.className = 'status-msg';
+  statusEl.textContent = '⚡ 正在連線至對手房間...';
+  
+  isHost = false;
+  cleanupPeer();
+  
+  peer = new Peer();
+  
+  peer.on('open', (id) => {
+    conn = peer.connect(roomInput);
+    setupConnection();
+  });
+  
+  peer.on('error', (err) => {
+    console.error(err);
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = '❌ 連線失敗，請確認房間 ID 是否輸入正確，且對方在線上。';
+    document.getElementById('btn-join-room').disabled = false;
+  });
+}
+
+function setupConnection() {
+  conn.on('open', () => {
+    showToast("🎉 連線成功！對戰即將開始...", 2000);
+    
+    myBattleScore = 0;
+    oppBattleScore = 0;
+    battleQIdx = 0;
+    rematchVotes = { me: false, opp: false };
+    
+    document.getElementById('my-battle-score').textContent = '0';
+    document.getElementById('opp-battle-score').textContent = '0';
+    
+    if (isHost) {
+      let pool = [];
+      currentUnit.sections.forEach(sec => {
+        if (!sec.questions) return;
+        sec.questions.forEach(q => {
+          if (q.options && q.answer !== undefined) {
+            pool.push({
+              text: q.text || q.en || q.phrase || '',
+              options: q.options,
+              answer: q.answer,
+              vocab: q.vocab || '',
+              explanation: q.explanation || '',
+              _secId: sec.id
+            });
+          }
+        });
+      });
+      
+      let shuffled = shuffle(pool).slice(0, Math.min(10, pool.length));
+      battleQuestions = shuffled;
+      
+      conn.send({
+        type: 'START_GAME',
+        questions: battleQuestions
+      });
+      
+      enterBattleGame();
+    }
+  });
+  
+  conn.on('data', (data) => {
+    if (data.type === 'START_GAME') {
+      battleQuestions = data.questions;
+      enterBattleGame();
+    } else if (data.type === 'ANSWER_SUBMITTED') {
+      oppAnswerStatus = data.isCorrect ? 'correct' : 'wrong';
+      if (data.isCorrect) {
+        oppBattleScore++;
+        document.getElementById('opp-battle-score').textContent = oppBattleScore;
+      }
+      checkRoundProgress();
+    } else if (data.type === 'NEXT_ROUND') {
+      goToNextRound();
+    } else if (data.type === 'REMATCH_VOTE') {
+      rematchVotes.opp = true;
+      checkRematchStatus();
+    } else if (data.type === 'PEER_DISCONNECTED') {
+      showToast("⚠️ 對手已中斷連線");
+      exitBattle();
+    }
+  });
+  
+  conn.on('close', () => {
+    showToast("🔌 連線已關閉");
+    exitBattle();
+  });
+  
+  conn.on('error', (err) => {
+    showToast("❌ 連線錯誤: " + err);
+    exitBattle();
+  });
+}
+
+function enterBattleGame() {
+  document.getElementById('battle-setup').style.display = 'none';
+  document.getElementById('battle-result').style.display = 'none';
+  document.getElementById('battle-game').style.display = 'block';
+  
+  renderBattleQuestion();
+}
+
+function renderBattleQuestion() {
+  hasAnsweredCurrent = false;
+  myAnswerStatus = null;
+  oppAnswerStatus = null;
+  
+  document.getElementById('battle-q-idx').textContent = battleQIdx + 1;
+  document.getElementById('battle-feedback').textContent = '';
+  document.getElementById('battle-feedback').className = 'battle-feedback';
+  
+  const q = battleQuestions[battleQIdx];
+  const qTextEl = document.getElementById('battle-q-text');
+  qTextEl.innerHTML = formatQuestionText(q.text || q.en || q.phrase || '');
+  
+  const optGrid = document.getElementById('battle-options-grid');
+  optGrid.innerHTML = q.options.map((opt, i) => `
+    <button class="option-btn" id="bopt-${i}" onclick="selectBattleOption(${i})">
+      <span class="opt-letter">${String.fromCharCode(65+i)}</span>
+      <span>${opt.replace(/^\([A-Z]\)\s*/,'')}</span>
+    </button>`).join('');
+}
+
+function selectBattleOption(selIdx) {
+  if (hasAnsweredCurrent) return;
+  hasAnsweredCurrent = true;
+  
+  const q = battleQuestions[battleQIdx];
+  const isCorrect = (selIdx === q.answer);
+  myAnswerStatus = isCorrect ? 'correct' : 'wrong';
+  
+  document.querySelectorAll('#battle-options-grid .option-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) {
+      btn.classList.add('correct');
+    } else if (i === selIdx) {
+      btn.classList.add('wrong');
+    }
+  });
+  
+  const feedbackEl = document.getElementById('battle-feedback');
+  if (isCorrect) {
+    myBattleScore++;
+    document.getElementById('my-battle-score').textContent = myBattleScore;
+    feedbackEl.textContent = '🎉 答對了！+1 分';
+    feedbackEl.className = 'battle-feedback correct';
+  } else {
+    feedbackEl.textContent = `❌ 答錯了！正確是選項 ${String.fromCharCode(65+q.answer)}`;
+    feedbackEl.className = 'battle-feedback wrong';
+  }
+  
+  conn.send({
+    type: 'ANSWER_SUBMITTED',
+    isCorrect: isCorrect
+  });
+  
+  checkRoundProgress();
+}
+
+function checkRoundProgress() {
+  if (myAnswerStatus !== null && oppAnswerStatus !== null) {
+    setTimeout(() => {
+      if (isHost) {
+        goToNextRound();
+        conn.send({ type: 'NEXT_ROUND' });
+      }
+    }, 1800);
+  }
+}
+
+function goToNextRound() {
+  battleQIdx++;
+  if (battleQIdx < battleQuestions.length) {
+    renderBattleQuestion();
+  } else {
+    showBattleResult();
+  }
+}
+
+function showBattleResult() {
+  document.getElementById('battle-game').style.display = 'none';
+  document.getElementById('battle-result').style.display = 'block';
+  
+  document.getElementById('final-my-score').textContent = myBattleScore;
+  document.getElementById('final-opp-score').textContent = oppBattleScore;
+  
+  const iconEl = document.getElementById('battle-result-icon');
+  const titleEl = document.getElementById('battle-result-title');
+  const msgEl = document.getElementById('battle-result-msg');
+  
+  if (myBattleScore > oppBattleScore) {
+    iconEl.textContent = '🏆';
+    titleEl.textContent = '你贏了！';
+    msgEl.textContent = '表現卓越！太厲害了，掌握得非常完美！';
+  } else if (myBattleScore < oppBattleScore) {
+    iconEl.textContent = '💪';
+    titleEl.textContent = '你輸了！';
+    msgEl.textContent = '差了一點點，再加把勁，下次一定能贏！';
+  } else {
+    iconEl.textContent = '🤝';
+    titleEl.textContent = '平手！';
+    msgEl.textContent = '雙方勢均力敵，實力不分軒輊！';
+  }
+}
+
+function rematchBattle() {
+  if (rematchVotes.me) return;
+  rematchVotes.me = true;
+  showToast("⏳ 已發送再戰邀請，等待對手同意...");
+  conn.send({ type: 'REMATCH_VOTE' });
+  checkRematchStatus();
+}
+
+function checkRematchStatus() {
+  if (rematchVotes.me && rematchVotes.opp) {
+    showToast("⚔️ 雙方已同意，開始下一局對戰！", 1500);
+    myBattleScore = 0;
+    oppBattleScore = 0;
+    battleQIdx = 0;
+    rematchVotes = { me: false, opp: false };
+    
+    document.getElementById('my-battle-score').textContent = '0';
+    document.getElementById('opp-battle-score').textContent = '0';
+    
+    if (isHost) {
+      let pool = [];
+      currentUnit.sections.forEach(sec => {
+        if (!sec.questions) return;
+        sec.questions.forEach(q => {
+          if (q.options && q.answer !== undefined) {
+            pool.push({
+              text: q.text || q.en || q.phrase || '',
+              options: q.options,
+              answer: q.answer,
+              vocab: q.vocab || '',
+              explanation: q.explanation || '',
+              _secId: sec.id
+            });
+          }
+        });
+      });
+      battleQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+      conn.send({
+        type: 'START_GAME',
+        questions: battleQuestions
+      });
+      enterBattleGame();
+    }
+  }
+}
+
+function cleanupPeer() {
+  if (conn) {
+    try {
+      conn.send({ type: 'PEER_DISCONNECTED' });
+      conn.close();
+    } catch(e) {}
+    conn = null;
+  }
+  if (peer) {
+    try { peer.destroy(); } catch(e) {}
+    peer = null;
+  }
+}
+
+function exitBattle() {
+  cleanupPeer();
+  showPage('unit-page');
+}
+
+function copyRoomId() {
+  const rId = document.getElementById('my-room-id').textContent;
+  if (!rId) return;
+  
+  navigator.clipboard.writeText(rId).then(() => {
+    showToast("📋 房間 ID 已複製到剪貼簿！");
+  }).catch(err => {
+    console.error('Copy failed', err);
+    showToast("📋 請手動複製房間 ID");
+  });
+}
+
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('back-btn').onclick = goHome;
